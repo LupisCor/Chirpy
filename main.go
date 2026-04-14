@@ -8,9 +8,16 @@ import (
 func main() {
 	const port = "8080"
 	const rootfilepath = "."
+
 	mux := http.NewServeMux() //Create ServeMux
-	mux.Handle("/", http.FileServer(http.Dir(rootfilepath)))
-	mux.Handle("/assets/logo.png", http.FileServer(http.Dir(rootfilepath)))
+	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir(rootfilepath))))
+	// http.FileServer(http.Dir(rootfilepath))
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(200)
+		w.Write([]byte("OK"))
+	})
 
 	srv := &http.Server{
 		Addr:    ":" + port,
