@@ -9,6 +9,7 @@ import (
 
 	"github.com/LupisCor/Chirpy/internal/database"
 	"github.com/joho/godotenv"
+
 	_ "github.com/lib/pq"
 )
 
@@ -18,41 +19,37 @@ type apiConfig struct {
 }
 
 func main() {
+	const filepathRoot = "."
 	const port = "8080"
-	const rootfilepath = "."
 
 	godotenv.Load()
 	dbURL := os.Getenv("DB_URL")
-	if dbURL == "" {
-		log.Fatal("DB_URL must be set")
-	}
-
-	dbConn, err := sql.Open("postgres", dbURL)
+	dbconn, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatalf("Error opening database: %s", err)
 	}
-	dbQueries := database.New(dbConn)
+	dbQueries := database.New(dbconn)
 
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
 	}
 
-	mux := http.NewServeMux() //Create ServeMux
-	fsHandler := apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer((http.Dir(rootfilepath)))))
-	// Endpoints
-	mux.Handle("/app/", fsHandler)
-	mux.HandleFunc("GET /api/healthz", handlerReadiness)
-	mux.HandleFunc("POST /api/validate_chirp", handlerChirpsValidate)
-	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
-	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
+	mux := http.NewServeMux()
+	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))) // Serve static files from the current directory
 
-	srv := &http.Server{
+	// HandleFunc format: mux.HandleFunc("/path", handlerFunction)
+	mux.HandleFunc("GET /api/healthz", handlerReadiness)             // Handle readiness check
+	mux.HandleFunc("POST /api/validate_chirp", handlerValidateChirp) // Handle chirp validation
+
+	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics) // Handle metrics endpoint
+	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)    // Handle reset endpoint
+
+	server := &http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
 	}
 
-	log.Printf("Serving files from %s on port: %s\n", rootfilepath, port)
-	log.Fatal(srv.ListenAndServe())
-
+	log.Printf("Serving on port: %s\n", port)
+	log.Fatal(server.ListenAndServe())
 }
