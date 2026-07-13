@@ -49,9 +49,11 @@ func main() {
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))) // Serve static files from the current directory
 
 	// HandleFunc format: mux.HandleFunc("/path", handlerFunction)
-	mux.HandleFunc("GET /api/healthz", handlerReadiness)             // Handle readiness check
-	mux.HandleFunc("POST /api/validate_chirp", handlerValidateChirp) // Handle chirp validation
-	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)      // Handle user creation
+	mux.HandleFunc("GET /api/healthz", handlerReadiness)               // Handle readiness check
+	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)        // Handle user creation
+	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)     // Handle chirp creation
+	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsRead)        // Handle chirp retrieval
+	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerChirpID) // Handle chirp retrieval by ID
 
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics) // Handle metrics endpoint
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)    // Handle reset endpoint
