@@ -54,6 +54,7 @@ func main() {
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)     // Handle chirp creation
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsRead)        // Handle chirp retrieval
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerChirpID) // Handle chirp retrieval by ID
+	mux.HandleFunc("POST /api/login", apiCfg.handlerLoginUser)         // Handle user login
 
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics) // Handle metrics endpoint
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)    // Handle reset endpoint
