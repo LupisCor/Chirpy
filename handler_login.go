@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	auth "github.com/LupisCor/Chirpy/internal"
+	auth "github.com/LupisCor/Chirpy/internal/auth"
 )
 
 func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, r *http.Request) {

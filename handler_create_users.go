@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	auth "github.com/LupisCor/Chirpy/internal"
+	auth "github.com/LupisCor/Chirpy/internal/auth"
 	"github.com/LupisCor/Chirpy/internal/database"
 	"github.com/google/uuid"
 )
